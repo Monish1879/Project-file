@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smartwatch Control Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #000;
+      --panel: #1c1c1c;
+      --text: #fff;
+      --muted: #aaa;
+      --accent: #3a8ef6;
+      --radius: 16px;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+    }
+
+    .header button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .header button:hover {
+      background-color: #2a7ae4;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      background-color: var(--panel);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .tab-content {
+      display: none;
+      background-color: var(--panel);
+      padding: 20px;
+      margin-top: 10px;
+      border-radius: var(--radius);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .item {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .sub-item {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+      margin-left: 20px;
+      user-select: none;
+    }
+
+    .sub-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown {
+      display: none;
+      margin-left: 10px;
+      margin-top: 5px;
+    }
+
+    .item.open + .dropdown {
+      display: block;
+    }
+
+    .nested-dropdown {
+      display: none;
+      margin-left: 20px;
+      margin-top: 5px;
+    }
+
+    .sub-item.open + .nested-dropdown {
+      display: block;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    .tile {
+      background-color: #2e2e2e;
+      padding: 20px;
+      border-radius: var(--radius);
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--accent);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tile-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: #383838;
+      border-radius: var(--radius);
+      padding: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .tile.open .tile-content {
+      display: block;
+    }
+
+    .graph-container {
+      width: 100%;
+      height: 100px;
+      background-color: #2e2e2e;
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .graph-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 14.28%;
+      height: 0;
+      background-color: #3a8ef6;
+      transition: height 0.3s;
+    }
+
+    .stopwatch-container {
+      margin-top: 10px;
+    }
+
+    .stopwatch-container button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .stopwatch-container button:hover {
+      background-color: #2a7ae4;
+    }
+
+    .stopwatch-display {
+      font-size: 1.2rem;
+      margin-top: 10px;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .slider-container label {
+      margin-right: 10px;
+    }
+
+    .slider-container input[type='range'] {
+      flex: 1;
+    }
+
+    .input-container {
+      margin-top: 10px;
+    }
+
+    .input-container label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .input-container input[type='text'],
+    .input-container input[type='number'],
+    .input-container input[type='file'] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background-color: #2e2e2e;
+      color: #fff;
+    }
+
+    .button-container {
+      margin-top: 10px;
+    }
+
+    .button-container button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .button-container button:hover {
+      background-color: #2a7ae4;
+    }
+
+    .form-container {
+      margin-top: 10px;
+    }
+
+    .form-container label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-container input[type='text'] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background-color: #2e2e2e;
+      color: #fff;
+    }
+
+    /* Workout tracker styling */
+    .workout-timer {
+      margin-top: 10px;
+    }
+
+    .workout-timer button {
+      padding: 8px 15px;
+      margin-right: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .workout-timer button:hover {
+      background-color: #2a7ae4;
+    }
+
+    .workout-display {
+      font-size: 1.3rem;
+      margin-top: 8px;
+      font-family: monospace;
+      color: var(--accent);
+    }
+
+    /* Connect button styles */
+    .header button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .header button:hover {
+      background-color: #2a7ae4;
+    }
+  </style>
+</head>
+<body>
+    <!-- Monish code-->
+  <div class="header">
+    <h2>Smartwatch Control Panel</h2>
+    <button id="connectButton" onclick="connectDevices()">Connect</button>
+    <p id="connection-status">Your watch isn't connected to your phone.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('watchfaces')">Watch Faces</div>
+    <div class="tab" onclick="switchTab('apps')">Apps Screen</div>
+    <div class="tab" onclick="switchTab('tiles')">Tiles</div>
+    <div class="tab" onclick="switchTab('quickpanel')">Quick Panel</div>
+  </div>
+
+  <div id="watchfaces" class="tab-content active">
+    <div class="item" onclick="showWatchface('classic')">Classic Analog</div>
+    <div class="item" onclick="showWatchface('digital')">Digital Minimal</div>
+    <div class="item" onclick="showWatchface('fitness')">Fitness Tracker Face</div>
+    <div class="watchface-preview">
+      <canvas id="watchCanvas" width="200" height="200"></canvas>
+    </div>
+  </div>
+
+  <div id="apps" class="tab-content">
+    <div class="item" onclick="alert('Heart rate: 78 bpm')">Heart Rate Monitor</div>
+    <div class="item">
+      Workout Tracker
+      <div class="workout-timer">
+        <div id="workoutDisplay" class="workout-display">00:00:00</div>
+        <button onclick="startWorkout()">Start</button>
+        <button onclick="stopWorkout()">Stop</button>
+        <button onclick="resetWorkout()">Reset</button>
+      </div>
+    </div>
+    <div class="item" onclick="alert('Weather: 72°F, Sunny')">Weather</div>
+    <div class="item" onclick="alert('Playing Music')">Music Control</div>
+  </div>
+
+  <div id="tiles" class="tab-content">
+    <div class="tile-grid">
+      <div class="tile" onclick="toggleTile(this)">
+        Steps
+        <div class="tile-content">
+          <div>Steps: 3,500</div>
+          <div>Distance: 2.8 km</div>
+        </div>
+      </div>
+      <div class="tile" onclick="toggleTile(this)">
+        Sleep
+        <div class="tile-content">
+          <div class="graph-container">
+            <div class="graph-bar" style="height: 30%;"></div>
+            <div class="graph-bar" style="height: 40%;"></div>
+            <div class="graph-bar" style="height: 50%;"></div>
+            <div class="graph-bar" style="height: 60%;"></div>
+            <div class="graph-bar" style="height: 45%;"></div>
+            <div class="graph-bar" style="height: 55%;"></div>
+            <div class="graph-bar" style="height: 65%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tile" onclick="toggleTile(this)">
+        Heart
+        <div class="tile-content">
+          <div>Heart Rate: 78 bpm</div>
+        </div>
+      </div>
+      <div class="tile" onclick="toggleTile(this)">
+        Weather
+        <div class="tile-content">
+          <div>Weather: 72°F, Sunny</div>
+        </div>
+      </div>
+      <div class="tile" onclick="toggleTile(this)">
+        Stopwatch
+        <div class="tile-content">
+          <div class="stopwatch-container">
+            <button onclick="startStopwatch()">Start</button>
+            <button onclick="stopStopwatch()">Stop</button>
+            <button onclick="resetStopwatch()">Reset</button>
+          </div>
+          <div class="stopwatch-display" id="stopwatchDisplay">00:00:00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="quickpanel" class="tab-content">
+    <div class="item" onclick="toggleDropdown(this)">Watch Settings</div>
+    <div class="dropdown">
+      <!-- quick panel nested content unchanged for brevity -->
+      <div class="sub-item" onclick="toggleNestedDropdown(this)">- Notifications</div>
+      <div class="nested-dropdown">
+        <div class="sub-item" onclick="toggleNestedDropdown(this)">- Notification Activity</div>
+        <div class="nested-dropdown">
+          <div>Notification Activity Details</div>
+        </div>
+        <div class="sub-item" onclick="toggleNestedDropdown(this)">- Sound</div>
+        <div class="nested-dropdown">
+          <div class="slider-container">
+            <label for="sound">Sound:</label>
+            <input type="range" id="sound" min="0" max="100" value="50" />
+          </div>
+        </div>
+        <div class="sub-item" onclick="toggleNestedDropdown(this)">- App Permissions</div>
+        <div class="nested-dropdown">
+          <div class="button-container">
+            <button onclick="togglePermission('App1')">App1: Allow</button>
+            <button onclick="togglePermission('App2')">App2: Block</button>
+            <button onclick="togglePermission('App3')">App3: Allow</button>
+          </div>
+        </div>
+      </div>
+      <div class="sub-item" onclick="toggleNestedDropdown(this)">- Display</div>
+      <div class="nested-dropdown">
+        <div class="slider-container">
+          <label for="brightness">Brightness:</label>
+          <input type="range" id="brightness" min="0" max="100" value="50" />
+        </div>
+        <div class="input-container">
+          <label for="style">Style:</label>
+          <input type="text" id="style" placeholder="Enter style" />
+        </div>
+        <div class="input-container">
+          <label for="theme">Theme:</label>
+          <input type="text" id="theme" placeholder="Enter theme" />
+        </div>
+      </div>
+      <div class="sub-item" onclick="toggleNestedDropdown(this)">- Health</div>
+      <div class="nested-dropdown">
+        <div class="input-container">
+          <label for="weight">Weight (kg):</label>
+          <input type="number" id="weight" placeholder="Enter weight" />
+        </div>
+        <div class="input-container">
+          <label for="height">Height (cm):</label>
+          <input type="number" id="height" placeholder="Enter height" />
+        </div>
+        <div class="input-container">
+          <label for="medicalCertificate">Medical Certificate:</label>
+          <input type="file" id="medicalCertificate" accept=".pdf,.jpg,.png" />
+        </div>
+      </div>
+      <div class="sub-item" onclick="toggleNestedDropdown(this)">- Pay</div>
+      <div class="nested-dropdown">
+        <div class="form-container">
+          <label for="phoneLink">Link with Phone:</label>
+          <input type="text" id="phoneLink" placeholder="Enter phone number" />
+          <button onclick="linkWithPhone()">Link</button>
+        </div>
+        <div class="input-container">
+          <label for="upiId">UPI ID:</label>
+          <input type="text" id="upiId" placeholder="Enter UPI ID" />
+        </div>
+        <div class="button-container">
+          <button onclick="togglePaymentMethod('Paytm')">Paytm</button>
+          <button onclick="togglePaymentMethod('UPI')">UPI</button>
+          <button onclick="togglePaymentMethod('Debit Card')">Debit Card</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item" onclick="toggleDropdown(this)">Find My Watch</div>
+    <div class="dropdown">
+      <div class="sub-item" onclick="toggleNestedDropdown(this)">- Ring Watch</div>
+      <div class="nested-dropdown">
+        <div class="button-container">
+          <button id="ringWatchButton" onclick="toggleRingWatch()">Ring Watch</button>
+        </div>
+      </div>
+      <div class="sub-item" onclick="toggleNestedDropdown(this)">- Location</div>
+      <div class="nested-dropdown">
+        <div class="button-container">
+          <button onclick="openGoogleMaps()">Location</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item" onclick="toggleDropdown(this)">Tips and User Guide</div>
+    <div class="dropdown">
+      <div>- Setup Guide</div>
+      <div>- Usage Tips</div>
+    </div>
+
+    <div class="item" onclick="toggleDropdown(this)">Store</div>
+    <div class="dropdown">
+      <div onclick="switchTab('watchfaces')" style="cursor:pointer; color: var(--accent); margin-bottom: 5px;">
+        - Watch Faces
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab').forEach((tab) => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach((content) => {
+        content.classList.remove('active');
+      });
+      document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function toggleDropdown(element) {
+      const allItems = document.querySelectorAll('.item');
+      allItems.forEach((item) => item.classList.remove('open'));
+      if (!element.classList.contains('open')) {
+        element.classList.add('open');
+      } else {
+        element.classList.remove('open');
+      }
+    }
+
+    function toggleNestedDropdown(element) {
+      const allSubItems = document.querySelectorAll('.sub-item');
+      allSubItems.forEach((subItem) => subItem.classList.remove('open'));
+      if (!element.classList.contains('open')) {
+        element.classList.add('open');
+      } else {
+        element.classList.remove('open');
+      }
+    }
+
+    function showWatchface(type) {
+      const canvas = document.getElementById('watchCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (type === 'classic') {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(100, 100, 90, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        for (let i = 0; i < 12; i++) {
+          const angle = (i * Math.PI) / 6;
+          const x = 100 + Math.cos(angle) * 75;
+          const y = 100 + Math.sin(angle) * 75;
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      } else if (type === 'digital') {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#3a8ef6';
+        ctx.font = '28px monospace';
+        const now = new Date();
+        const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        ctx.fillText(time, 50, 110);
+      } else if (type === 'fitness') {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#0f0';
+        ctx.fillRect(40, 90, 120, 20);
+        ctx.fillStyle = '#fff';
+        ctx.font = '16px sans-serif';
+        ctx.fillText('Steps: 7,200', 50, 80);
+        ctx.fillText('Heart: 82 bpm', 50, 130);
+      }
+    }
+
+    // Workout tracker logic
+    let workoutInterval;
+    let workoutTime = 0;
+
+    function updateWorkoutDisplay() {
+      const hours = Math.floor(workoutTime / 3600);
+      const minutes = Math.floor((workoutTime % 3600) / 60);
+      const seconds = workoutTime % 60;
+      const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      document.getElementById('workoutDisplay').textContent = display;
+    }
+
+    function startWorkout() {
+      if (!workoutInterval) {
+        workoutInterval = setInterval(() => {
+          workoutTime++;
+          updateWorkoutDisplay();
+        }, 1000);
+      }
+    }
+
+    function stopWorkout() {
+      clearInterval(workoutInterval);
+      workoutInterval = null;
+    }
+
+    function resetWorkout() {
+      stopWorkout();
+      workoutTime = 0;
+      updateWorkoutDisplay();
+    }
+
+    let stopwatchInterval;
+    let stopwatchTime = 0;
+
+    function startStopwatch() {
+      if (!stopwatchInterval) {
+        stopwatchInterval = setInterval(() => {
+          stopwatchTime++;
+          updateStopwatchDisplay();
+        }, 1000);
+      }
+    }
+
+    function stopStopwatch() {
+      clearInterval(stopwatchInterval);
+      stopwatchInterval = null;
+    }
+
+    function resetStopwatch() {
+      stopStopwatch();
+      stopwatchTime = 0;
+      updateStopwatchDisplay();
+    }
+
+    function updateStopwatchDisplay() {
+      const hours = Math.floor(stopwatchTime / 3600);
+      const minutes = Math.floor((stopwatchTime % 3600) / 60);
+      const seconds = stopwatchTime % 60;
+      const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      document.getElementById('stopwatchDisplay').textContent = display;
+    }
+
+    // Other utility functions...
+
+    function togglePermission(appName) {
+      alert(`${appName} permission toggled`);
+    }
+
+    function linkWithPhone() {
+      const phoneLink = document.getElementById('phoneLink').value;
+      alert(`Linked with phone: ${phoneLink}`);
+    }
+
+    function togglePaymentMethod(method) {
+      alert(`${method} payment method selected`);
+    }
+
+    let isRinging = false;
+    function toggleRingWatch() {
+      const button = document.getElementById('ringWatchButton');
+      if (isRinging) {
+        button.textContent = 'Ring Watch';
+        alert('Watch stopped ringing');
+      } else {
+        button.textContent = 'Stop Ringing';
+        alert('Watch is ringing');
+      }
+      isRinging = !isRinging;
+    }
+
+    function openGoogleMaps() {
+      const watchLocation = '37.7749,-122.4194';
+      window.open(`https://www.google.com/maps/@${watchLocation},15z`, '_blank');
+    }
+
+    function toggleTile(element) {
+      const allTiles = document.querySelectorAll('.tile');
+      allTiles.forEach((tile) => tile.classList.remove('open'));
+      if (!element.classList.contains('open')) {
+        element.classList.add('open');
+      } else {
+        element.classList.remove('open');
+      }
+    }
+
+    function connectDevices() {
+      const statusElem = document.getElementById('connection-status');
+      if (
+        statusElem.textContent.includes("isn't connected")
+      ) {
+        statusElem.textContent = 'Your watch is now connected to your phone.';
+        alert('Devices connected successfully!');
+      } else {
+        alert('Devices are already connected.');
+      }
+    }
+  </script>
+</body>
+</html>
+
